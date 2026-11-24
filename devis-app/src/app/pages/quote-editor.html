@@ -1,0 +1,166 @@
+<div class="layout" [class.show-edit]="view === 'edit'" [class.show-preview]="view === 'preview'">
+  <!-- ===== ÉDITEUR (masqué à l'impression) ===== -->
+  <aside class="editor no-print" (input)="save()" (change)="save()">
+    <div class="bar">
+      <a routerLink="/" class="btn">← Mes devis</a>
+      <button class="btn primary" (click)="print()">Imprimer / PDF</button>
+    </div>
+    <div class="tabs">
+      <button class="btn" [class.on]="view === 'edit'" (click)="view = 'edit'">Modifier</button>
+      <button class="btn" [class.on]="view === 'preview'" (click)="view = 'preview'">Aperçu</button>
+    </div>
+
+    <details class="card">
+      <summary>Mon entreprise (en-tête)</summary>
+      <div class="logo-row">
+        @if (company.logo) {
+          <img [src]="company.logo" alt="Logo" />
+          <button class="btn" (click)="removeLogo()">Retirer le logo</button>
+        }
+        <label class="btn">
+          {{ company.logo ? 'Changer le logo' : 'Ajouter un logo' }}
+          <input type="file" accept="image/*" hidden (change)="onLogo($event)" />
+        </label>
+      </div>
+      <label>Nom (texte, optionnel) <input [(ngModel)]="company.name" (input)="saveCompany()" /></label>
+      <label>Activités <textarea rows="3" [(ngModel)]="company.tagline" (input)="saveCompany()"></textarea></label>
+      <label>Contacts <input [(ngModel)]="company.contacts" (input)="saveCompany()" /></label>
+      <label>E-mail <input [(ngModel)]="company.email" (input)="saveCompany()" /></label>
+      <label>Ville <input [(ngModel)]="company.city" (input)="saveCompany()" /></label>
+    </details>
+
+    <section class="card">
+      <h2>Informations</h2>
+      <div class="grid2">
+        <label>N° devis <input [(ngModel)]="quote.number" /></label>
+        <label>Date <input type="date" [(ngModel)]="quote.date" /></label>
+        <label>Client <input [(ngModel)]="quote.client" /></label>
+        <label>Projet <input [(ngModel)]="quote.project" /></label>
+      </div>
+      <label>Titre du devis <input [(ngModel)]="quote.title" /></label>
+    </section>
+
+    @for (s of quote.sections; track $index; let si = $index) {
+      <section class="card">
+        <div class="sec-head">
+          <h2>Section {{ si + 1 }}</h2>
+          <span>
+            <button class="mini" (click)="moveSection(si, -1)" title="Monter">↑</button>
+            <button class="mini" (click)="moveSection(si, 1)" title="Descendre">↓</button>
+            <button class="mini danger" (click)="removeSection(si)" title="Supprimer">✕</button>
+          </span>
+        </div>
+        <div class="grid2">
+          <label>Intitulé du groupe (optionnel) <input [(ngModel)]="s.heading" placeholder="Cabine de douche" /></label>
+          <label>Titre de la section <input [(ngModel)]="s.title" placeholder="Vitre 10mm claire trempée" /></label>
+        </div>
+        <label>Libellé du sous-total (libre) <input [(ngModel)]="s.totalLabel" placeholder="TOTAL VITRE" /></label>
+
+        <div class="lines">
+          <div class="line head">
+            <span>Désignation</span><span>Dimensions (cm)</span><span>Unité</span><span>Qté</span><span>P.U</span><span></span>
+          </div>
+          @for (l of s.lines; track $index; let li = $index) {
+            <div class="line">
+              <input [(ngModel)]="l.designation" placeholder="Désignation" />
+              <span class="dim">
+                <input [(ngModel)]="l.dimensions" placeholder="106X210" />
+                @if (l.dimensions) {
+                  <button class="mini" (click)="priceFromArea(l)" title="P.U = surface × prix du m²">m²→P.U</button>
+                }
+              </span>
+              <input [(ngModel)]="l.unit" placeholder="Unité" />
+              <input type="number" min="0" inputmode="decimal" [(ngModel)]="l.qty" placeholder="Qté" />
+              <input type="number" min="0" inputmode="numeric" [(ngModel)]="l.pu" placeholder="P.U" />
+              <button class="mini danger" (click)="removeLine(s, li)" title="Supprimer la ligne">✕</button>
+            </div>
+          }
+        </div>
+        <button class="btn" (click)="addLine(s)">+ Ajouter une ligne</button>
+        <p class="sub">{{ s.totalLabel }} : <strong>{{ sectionTotal(s) | fcfa }}</strong> FCFA</p>
+      </section>
+    }
+    <button class="btn" (click)="addSection()">+ Ajouter une section</button>
+
+    <section class="card">
+      <h2>Totaux</h2>
+      <label>Libellé du total général <input [(ngModel)]="quote.grandTotalLabel" /></label>
+      <div class="grid2">
+        <label class="check"><input type="checkbox" [(ngModel)]="quote.tvaEnabled" /> Appliquer la TVA</label>
+        <label>Taux TVA (%) <input type="number" min="0" [(ngModel)]="quote.tvaRate" /></label>
+        <label>Prix du m² de vitre (aide au calcul) <input type="number" min="0" [(ngModel)]="quote.pricePerM2" /></label>
+      </div>
+      <label>Notes / conditions (paiement, validité, pose…) <textarea rows="4" [(ngModel)]="quote.notes"></textarea></label>
+    </section>
+  </aside>
+
+  <!-- ===== APERÇU IMPRIMABLE ===== -->
+  <section class="preview">
+    <article class="sheet">
+      <header class="doc-head">
+        @if (company.logo) {
+          <img class="logo" [src]="company.logo" alt="Logo" />
+        }
+        @if (company.name) {
+          <div class="company">{{ company.name }}</div>
+        }
+        <p class="tagline">{{ company.tagline }}</p>
+        <p class="contacts">Contacts : {{ company.contacts }}</p>
+      </header>
+
+      <p class="right">{{ company.city }}, le {{ fmtDate(quote.date) }}</p>
+      @if (quote.number) {
+        <p class="right">Devis n° {{ quote.number }}</p>
+      }
+      <p><strong>Client :</strong> {{ quote.client }}</p>
+      <p><strong>Projet :</strong> {{ quote.project }}</p>
+
+      <h3 class="doc-title">{{ quote.title }}</h3>
+
+      <table>
+        <thead>
+          <tr><th>ART</th><th>DESIGNATION DES OUVRAGES</th><th>UNITE</th><th>Q.TE</th><th>P. U</th><th>P. T</th></tr>
+        </thead>
+        <tbody>
+          @for (s of quote.sections; track $index) {
+            @if (s.heading) {
+              <tr class="group"><td></td><td colspan="5">{{ s.heading }}</td></tr>
+            }
+            @if (s.title) {
+              <tr class="section"><td></td><td colspan="5">{{ s.title }}</td></tr>
+            }
+            @for (l of s.lines; track $index) {
+              <tr>
+                <td></td>
+                <td>{{ l.designation }} {{ l.dimensions }}</td>
+                <td class="c">{{ l.unit }}</td>
+                <td class="c">{{ l.qty }}</td>
+                <td class="r">{{ l.pu | fcfa }}</td>
+                <td class="r">{{ lineTotal(l) | fcfa }}</td>
+              </tr>
+            }
+            <tr class="total"><td></td><td colspan="4">{{ s.totalLabel }}</td><td class="r">{{ sectionTotal(s) | fcfa }}</td></tr>
+          }
+          @if (quote.tvaEnabled) {
+            <tr class="total"><td></td><td colspan="4">TOTAL HT</td><td class="r">{{ subTotal(quote) | fcfa }}</td></tr>
+            <tr class="total"><td></td><td colspan="4">TVA {{ quote.tvaRate }} %</td><td class="r">{{ tvaAmount(quote) | fcfa }}</td></tr>
+          }
+          <tr class="grand">
+            <td></td>
+            <td colspan="4">{{ quote.grandTotalLabel }}{{ quote.tvaEnabled ? ' TTC' : '' }}</td>
+            <td class="r">{{ grandTotal(quote) | fcfa }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      @if (quote.notes) {
+        <p class="notes">{{ quote.notes }}</p>
+      }
+
+      <footer class="doc-foot">
+        <div>{{ company.email }}</div>
+        <div>Contacts : {{ company.contacts }}</div>
+      </footer>
+    </article>
+  </section>
+</div>
