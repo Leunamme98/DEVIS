@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Guide express – Sky Alu Devis</title>
+<style>
+  @font-face { font-family: 'Inter'; src: url('fonts/inter.woff2') format('woff2'); font-weight: 100 900; }
+  @page { size: A4; margin: 0; }
+
+  /* Couleurs de la charte Sky Alu (mêmes valeurs que l'application) */
+  :root {
+    --primary: #1e4fd8; --primary-soft: #e8eefc; --ink: #0f1b3d; --accent: #19a7e6;
+    --bg: #f5f7fb; --surface: #ffffff; --line: #e2e8f0; --muted: #64748b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { background: var(--bg); font-family: 'Inter', system-ui, sans-serif; color: var(--ink); }
+
+  .page {
+    width: 210mm; height: 297mm; margin: 0 auto; padding: 10mm 11mm 8mm; background: var(--surface);
+    display: flex; flex-direction: column; gap: 5mm; overflow: hidden; position: relative;
+  }
+  @media screen { body { padding: 12px 0; } .page { box-shadow: 0 2px 20px rgba(15, 27, 61, .15); } }
+
+  /* En-tête */
+  header { display: flex; align-items: center; gap: 4mm; padding-bottom: 4mm; border-bottom: 2px solid var(--primary); }
+  header img { height: 17mm; width: auto; }
+  header h1 { font-size: 21pt; font-weight: 800; letter-spacing: -.01em; line-height: 1.05; }
+  header h1 span { color: var(--primary); }
+  header p { font-size: 9.5pt; color: var(--muted); margin-top: 1mm; }
+  .url { margin-left: auto; text-align: right; }
+  .url b { display: inline-block; background: var(--primary-soft); color: var(--primary); padding: 1.6mm 3.4mm; border-radius: 99px; font-size: 9pt; font-weight: 700; }
+  .url small { display: block; margin-top: 1.4mm; font-size: 7.5pt; color: var(--muted); }
+
+  /* Étapes */
+  .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 4.5mm; }
+  .step { display: flex; flex-direction: column; gap: 2mm; }
+  .step h2 { display: flex; align-items: center; gap: 2.2mm; font-size: 11.5pt; font-weight: 700; }
+  .n { display: grid; place-items: center; width: 6.4mm; height: 6.4mm; border-radius: 50%; background: var(--primary); color: var(--surface); font-size: 9.5pt; font-weight: 800; flex-shrink: 0; }
+  .shot { position: relative; height: 54mm; border-radius: 3mm; overflow: hidden; border: 1px solid var(--line); background: var(--bg); box-shadow: 0 1px 6px rgba(15, 27, 61, .1); }
+  .shot img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
+  .tag {
+    position: absolute; background: var(--primary); color: var(--surface); font-size: 6.8pt; font-weight: 700;
+    padding: .9mm 2.2mm; border-radius: 99px; white-space: nowrap; box-shadow: 0 1px 4px rgba(15, 27, 61, .35);
+  }
+  .tag::before { content: ''; position: absolute; width: 2mm; height: 2mm; background: var(--accent); border: .5mm solid var(--surface); border-radius: 50%; left: -1.2mm; top: 50%; transform: translateY(-50%); }
+  .step p { font-size: 8.4pt; line-height: 1.45; color: var(--ink); }
+  .step p b { color: var(--primary); font-weight: 700; }
+
+  /* Bas de page */
+  .bottom { display: grid; grid-template-columns: auto 1fr; gap: 5mm; flex: 1; min-height: 0; align-items: start; }
+  .phone { height: 66mm; aspect-ratio: 412 / 915; border: 1.2mm solid var(--ink); border-radius: 5mm; overflow: hidden; background: var(--bg); position: relative; }
+  .phone img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  .phone-cap { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; background: var(--primary); color: var(--surface); font-size: 7pt; font-weight: 700; padding: 1.4mm 0; }
+  .tips { display: grid; grid-template-columns: 1.25fr 1fr; gap: 4mm; align-content: start; }
+  .box { background: var(--bg); border: 1px solid var(--line); border-radius: 3mm; padding: 3.4mm 4mm; }
+  .box h3 { font-size: 9.5pt; font-weight: 700; margin-bottom: 1.8mm; color: var(--primary); }
+  .box ul { list-style: none; display: grid; gap: 1.8mm; }
+  .box li { font-size: 8pt; line-height: 1.4; padding-left: 3.4mm; position: relative; }
+  .box li::before { content: ''; position: absolute; left: 0; top: 1.5mm; width: 1.6mm; height: 1.6mm; border-radius: 50%; background: var(--accent); }
+  .box li b { font-weight: 700; }
+  .warn { grid-column: 1 / -1; background: var(--primary-soft); border-color: transparent; display: flex; gap: 3mm; align-items: flex-start; }
+  .warn .i { display: grid; place-items: center; width: 5.4mm; height: 5.4mm; flex-shrink: 0; border-radius: 50%; background: var(--primary); color: var(--surface); font-weight: 800; font-size: 8.5pt; }
+  .warn p { font-size: 8.2pt; line-height: 1.45; }
+  .kbd { display: inline-block; border: 1px solid var(--line); background: var(--surface); border-radius: 1.2mm; padding: 0 1.5mm; font-size: 7.2pt; font-weight: 700; color: var(--muted); }
+  footer { text-align: center; font-size: 7.5pt; color: var(--muted); border-top: 1px solid var(--line); padding-top: 2.4mm; }
+</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <img src="img/logo.png" alt="Sky Alu" />
+    <div>
+      <h1>Guide express <span>· Sky Alu Devis</span></h1>
+      <p>Créez, partagez et suivez vos devis en quelques clics.</p>
+    </div>
+    <div class="url"><b>leunamme98.github.io/DEVIS</b><small>Sur téléphone, tablette et ordinateur</small></div>
+  </header>
+
+  <section class="steps">
+    <article class="step">
+      <h2><span class="n">1</span>Créer un devis</h2>
+      <div class="shot">
+        <img src="img/1-accueil.jpg" alt="Page d'accueil" />
+        <span class="tag" style="left: 14%; top: 41%;">Nouveau devis</span>
+        <span class="tag" style="left: 34%; top: 60%;">…ou un modèle</span>
+      </div>
+      <p>Sur l'<b>Accueil</b>, cliquez sur <b>Nouveau devis</b> ou directement sur un modèle (cabine, fenêtre, porte…). Indiquez le client et le projet : le devis est créé avec ses sections déjà prêtes.</p>
+    </article>
+
+    <article class="step">
+      <h2><span class="n">2</span>Compléter</h2>
+      <div class="shot">
+        <img src="img/2-edition.jpg" alt="Éditeur de devis" />
+        <span class="tag" style="left: 30%; top: 49%;">Vous modifiez ici</span>
+        <span class="tag" style="left: 58%; top: 28%;">Aperçu en direct</span>
+      </div>
+      <p>Ajustez désignations, quantités et prix : les <b>totaux se calculent seuls</b>. Le bouton <b>m²→P.U</b> déduit le prix d'une vitre de ses dimensions. Tout est <b>enregistré automatiquement</b>.</p>
+    </article>
+
+    <article class="step">
+      <h2><span class="n">3</span>Partager</h2>
+      <div class="shot">
+        <img src="img/3-partage.jpg" alt="Fenêtre Partager" />
+        <span class="tag" style="left: 63%; top: 47%;">PDF</span>
+        <span class="tag" style="left: 63%; top: 57%;">WhatsApp</span>
+        <span class="tag" style="left: 63%; top: 67%;">Copier</span>
+      </div>
+      <p>Cliquez sur <b>Partager</b> : PDF, message WhatsApp ou copie du récapitulatif. Pour le PDF, choisissez <b>« Enregistrer au format PDF »</b> dans la fenêtre d'impression.</p>
+    </article>
+
+    <article class="step">
+      <h2><span class="n">4</span>Suivre vos devis</h2>
+      <div class="shot">
+        <img src="img/4-suivi.jpg" alt="Liste des devis" />
+        <span class="tag" style="left: 13%; top: 43%;">Filtrer par statut</span>
+        <span class="tag" style="left: 52%; top: 77%;">Statut du devis</span>
+      </div>
+      <p>Dans <b>Mes devis</b> : recherchez, filtrez par statut (<b>Brouillon, Envoyé, Accepté, Refusé</b>) et mettez le statut à jour après l'envoi pour relancer au bon moment.</p>
+    </article>
+  </section>
+
+  <section class="bottom">
+    <div class="phone">
+      <img src="img/5-telephone-accueil.jpg" alt="Application sur téléphone" />
+      <div class="phone-cap">Aussi sur téléphone</div>
+    </div>
+    <div class="tips">
+      <div class="box">
+        <h3>Bon à savoir</h3>
+        <ul>
+          <li><b>TVA :</b> cochez « Appliquer la TVA » en bas de l'éditeur.</li>
+          <li><b>Sous-totaux :</b> nommez-les comme vous voulez (« Main-d'œuvre », « Pose »…).</li>
+          <li><b>Logo et coordonnées :</b> section « Mon entreprise » de l'éditeur.</li>
+          <li><b>Téléphone :</b> onglets <i>Modifier</i> / <i>Aperçu</i> ; ajoutez le site à l'écran d'accueil.</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Raccourcis</h3>
+        <ul>
+          <li><span class="kbd">Ctrl</span> <span class="kbd">K</span> recherche rapide d'un devis.</li>
+          <li>Bouton <span class="kbd">?</span> : aide et visite guidée.</li>
+          <li>Une suppression se <b>défait</b> grâce au bouton « Annuler ».</li>
+        </ul>
+      </div>
+      <div class="box warn">
+        <span class="i">!</span>
+        <p><b>Important :</b> vos devis sont enregistrés <b>sur l'appareil et le navigateur utilisés</b>. Pour les conserver ou les retrouver ailleurs, allez dans <b>Mes devis → Exporter</b> (puis <b>Importer</b> sur l'autre appareil). Faites-le régulièrement.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>Sky Alu · Menuiserie aluminium, vitrerie, cuisine, balcon, ferronnerie · (+225) 01 43 11 91 02 / 07 10 08 39 32</footer>
+</main>
+</body>
+</html>

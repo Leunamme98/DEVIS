@@ -6,6 +6,13 @@ Les données sont stockées dans le navigateur (localStorage) ; export/import JS
 - Code : `devis-app/`
 - Modèle d'origine : `docs/`
 
+## Guide d'utilisation
+Guide express d'une page (illustré) : **[Guide-Sky-Alu-Devis.pdf](docs/Guide-Sky-Alu-Devis.pdf)**
+
+[![Guide express](docs/guide/apercu.png)](docs/Guide-Sky-Alu-Devis.pdf)
+
+La source du guide est `docs/guide/guide.html` (à ouvrir dans un navigateur, puis Imprimer → Enregistrer au format PDF).
+
 ## Charte graphique
 Palette « Sky Alu » définie une seule fois dans `devis-app/src/styles.css` (bloc `@theme`).
 `--color-*: initial` supprime toutes les couleurs Tailwind par défaut : seules les couleurs de la charte existent.
