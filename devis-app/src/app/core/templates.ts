@@ -25,7 +25,7 @@ export const TEMPLATES: QuoteTemplate[] = [
     name: 'Cabine de douche',
     description: 'Vitre trempée 10 mm + kit coulissant et accessoires.',
     icon: 'shower',
-    title: 'DEVIS DE : MENUISERIE ALUMINIUM',
+    title: 'MENUISERIE ALUMINIUM',
     sections: [
       {
         heading: 'Cabine de douche',
@@ -53,7 +53,7 @@ export const TEMPLATES: QuoteTemplate[] = [
     name: 'Fenêtre aluminium',
     description: 'Fenêtre coulissante ou battante : profilé, vitrage, quincaillerie.',
     icon: 'window',
-    title: 'DEVIS DE : MENUISERIE ALUMINIUM',
+    title: 'MENUISERIE ALUMINIUM',
     sections: [
       {
         heading: 'Fenêtre aluminium',
@@ -74,7 +74,7 @@ export const TEMPLATES: QuoteTemplate[] = [
     name: 'Porte aluminium',
     description: 'Porte pleine ou vitrée avec serrure et finitions.',
     icon: 'door',
-    title: 'DEVIS DE : MENUISERIE ALUMINIUM',
+    title: 'MENUISERIE ALUMINIUM',
     sections: [
       {
         heading: 'Porte aluminium',
@@ -95,7 +95,7 @@ export const TEMPLATES: QuoteTemplate[] = [
     name: 'Devis vierge',
     description: 'Partez de zéro et construisez vos sections librement.',
     icon: 'file',
-    title: 'DEVIS',
+    title: 'PRESTATIONS',
     sections: [
       { heading: '', title: 'Ouvrages', totalLabel: 'TOTAL', lines: [L('', 1, 0)] },
     ],

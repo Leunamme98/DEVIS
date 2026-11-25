@@ -60,8 +60,8 @@ export const emptySection = (): Section => ({
 });
 
 export const DEFAULT_COMPANY: Company = {
-  name: '',
-  logo: 'logo-sky-alu.jpg',
+  name: 'SKY ALU',
+  logo: 'logo-mark.png',
   tagline:
     'TOUS TRAVAUX DE BÂTIMENT : MENUISERIE ALUMINIUM - VITRERIE - CUISINE - BALCON - FERRONNERIE - STORE - BÂCHES ET DIVERS',
   contacts: '(+225) 01 43 11 91 02 / 07 10 08 39 32',

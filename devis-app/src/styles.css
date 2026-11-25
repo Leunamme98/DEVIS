@@ -41,16 +41,6 @@
   --shadow-pop: 0 12px 40px color-mix(in srgb, var(--color-ink) 22%, transparent);
 }
 
-/* Thème « document » : identité du devis imprimé (reprend le modèle d'origine) */
-:root {
-  --doc-ink: #000;
-  --doc-paper: #fff;
-  --doc-head: #b8cce4;
-  --doc-sub: #d7e0bb;
-  --doc-grand: #e00000;
-  --doc-bar: #4a7ac2;
-}
-
 html {
   -webkit-tap-highlight-color: transparent;
   scroll-behavior: smooth;
@@ -152,7 +142,7 @@ body {
 .cdk-overlay-dark-backdrop { background: color-mix(in srgb, var(--color-ink) 45%, transparent); backdrop-filter: blur(2px); }
 
 @media print {
-  body { background: var(--doc-paper); }
+  body { background: var(--color-surface); }
   .no-print { display: none !important; }
   @page { size: A4; margin: 14mm; }
 }

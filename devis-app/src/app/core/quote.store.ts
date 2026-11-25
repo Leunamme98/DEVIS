@@ -27,7 +27,16 @@ export class QuoteStore {
   readonly quotes = signal<Quote[]>(
     read<Quote[]>(KEY_QUOTES, []).map((q) => ({ ...q, status: q.status ?? 'draft' })),
   );
-  readonly company = signal<Company>({ ...DEFAULT_COMPANY, ...read<Partial<Company>>(KEY_COMPANY, {}) });
+  readonly company = signal<Company>(this.loadCompany());
+
+  private loadCompany(): Company {
+    const saved = read<Partial<Company>>(KEY_COMPANY, {});
+    const c: Company = { ...DEFAULT_COMPANY, ...saved };
+    // Anciennes versions : bannière large et nom vide → nouvel en-tête (symbole + nom).
+    if (saved.logo === 'logo-sky-alu.jpg') c.logo = DEFAULT_COMPANY.logo;
+    if (!saved.name) c.name = DEFAULT_COMPANY.name;
+    return c;
+  }
 
   get(id: string): Quote | undefined {
     return this.quotes().find((q) => q.id === id);
