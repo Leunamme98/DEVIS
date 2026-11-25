@@ -6,6 +6,22 @@ Les données sont stockées dans le navigateur (localStorage) ; export/import JS
 - Code : `devis-app/`
 - Modèle d'origine : `docs/`
 
+## Charte graphique
+Palette « Sky Alu » définie une seule fois dans `devis-app/src/styles.css` (bloc `@theme`).
+`--color-*: initial` supprime toutes les couleurs Tailwind par défaut : seules les couleurs de la charte existent.
+
+| Rôle | Couleur |
+|---|---|
+| Primaire | `#1E4FD8` |
+| Marine (texte) | `#0F1B3D` |
+| Accent | `#19A7E6` |
+| Fond / surface / bordure / texte secondaire | `#F5F7FB` / `#FFFFFF` / `#E2E8F0` / `#64748B` |
+| Succès / alerte / danger (statuts, erreurs) | `#16A34A` / `#F59E0B` / `#DC2626` |
+
+Le devis imprimé garde son propre thème « document » (variables `--doc-*`).
+
+**Pile :** Angular 22 · Tailwind CSS 4 · Angular CDK (dialogues, menus, infobulles, glisser-déposer) · Lucide · Inter.
+
 ## Développement
 ```
 cd devis-app

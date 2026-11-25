@@ -1,15 +1,131 @@
-*, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f4f5f7; color: #1c1c1e; }
-input, textarea, select { font: inherit; padding: 6px 8px; border: 1px solid #c9ccd1; border-radius: 6px; background: #fff; color: inherit; }
-textarea { resize: vertical; }
-.btn, .mini { font: inherit; cursor: pointer; border: 1px solid #c9ccd1; background: #fff; border-radius: 8px; padding: 8px 14px; text-decoration: none; color: inherit; display: inline-block; }
-.btn:hover, .mini:hover { background: #eef0f3; }
-.btn.primary { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
-.btn.primary:hover { background: #1e40af; }
-.danger { color: #b91c1c; }
+@import '@fontsource-variable/inter';
+@import '@angular/cdk/overlay-prebuilt.css';
+@import 'tailwindcss';
+
+/* =====================================================================
+   CHARTE GRAPHIQUE « SKY ALU » — palette stricte
+   ---------------------------------------------------------------------
+   `--color-*: initial` supprime TOUTES les couleurs par défaut de Tailwind :
+   seules les couleurs ci-dessous existent (bg-primary, text-ink, …).
+   Toute autre couleur est impossible dans les modèles.
+   ===================================================================== */
+@theme {
+  --color-*: initial;
+
+  /* Marque */
+  --color-primary: #1e4fd8;
+  --color-primary-hover: #1740b0;
+  --color-primary-soft: #e8eefc;
+  --color-ink: #0f1b3d;
+  --color-accent: #19a7e6;
+
+  /* Neutres */
+  --color-bg: #f5f7fb;
+  --color-surface: #ffffff;
+  --color-line: #e2e8f0;
+  --color-muted: #64748b;
+
+  /* Sémantiques (statuts et erreurs uniquement) */
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-danger: #dc2626;
+  --color-success-soft: color-mix(in srgb, var(--color-success) 12%, white);
+  --color-warning-soft: color-mix(in srgb, var(--color-warning) 16%, white);
+  --color-danger-soft: color-mix(in srgb, var(--color-danger) 10%, white);
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 14%, white);
+
+  --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --radius-card: 14px;
+  --shadow-card: 0 1px 2px color-mix(in srgb, var(--color-ink) 6%, transparent),
+    0 4px 14px color-mix(in srgb, var(--color-ink) 5%, transparent);
+  --shadow-pop: 0 12px 40px color-mix(in srgb, var(--color-ink) 22%, transparent);
+}
+
+/* Thème « document » : identité du devis imprimé (reprend le modèle d'origine) */
+:root {
+  --doc-ink: #000;
+  --doc-paper: #fff;
+  --doc-head: #b8cce4;
+  --doc-sub: #d7e0bb;
+  --doc-grand: #e00000;
+  --doc-bar: #4a7ac2;
+}
+
+html { -webkit-tap-highlight-color: transparent; }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; border-radius: 6px; }
+
+/* ---------------------------- Composants ---------------------------- */
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold
+    cursor-pointer select-none whitespace-nowrap transition duration-150
+    active:scale-[.98] disabled:opacity-50 disabled:pointer-events-none;
+}
+@utility btn-primary { @apply btn bg-primary text-surface shadow-sm hover:bg-primary-hover; }
+@utility btn-secondary { @apply btn bg-surface text-ink border border-line hover:bg-primary-soft hover:border-primary/30; }
+@utility btn-ghost { @apply btn text-muted hover:bg-primary-soft hover:text-primary; }
+@utility btn-danger { @apply btn bg-danger-soft text-danger hover:bg-danger hover:text-surface; }
+@utility btn-sm { @apply px-3 py-1.5 text-xs rounded-lg; }
+@utility btn-icon { @apply btn p-2 rounded-lg text-muted hover:bg-primary-soft hover:text-primary; }
+
+@utility card { @apply bg-surface rounded-(--radius-card) border border-line shadow-(--shadow-card); }
+
+@utility field { @apply grid gap-1.5 text-xs font-medium text-muted; }
+@utility input {
+  @apply w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink
+    placeholder:text-muted/60 transition focus:border-primary focus:outline-none focus:ring-3 focus:ring-primary/15
+    disabled:opacity-50;
+}
+
+@utility badge {
+  @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  &::before { content: ''; @apply size-1.5 rounded-full bg-current; }
+}
+@utility badge-draft { @apply badge bg-bg text-muted border border-line; }
+@utility badge-sent { @apply badge bg-accent-soft text-primary; }
+@utility badge-accepted { @apply badge bg-success-soft text-success; }
+@utility badge-rejected { @apply badge bg-danger-soft text-danger; }
+
+@utility chip {
+  @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3.5 py-1.5 text-sm
+    font-medium text-muted cursor-pointer transition hover:border-primary/40 hover:text-primary;
+}
+
+@utility table-wrap { @apply overflow-x-auto; }
+@utility num { @apply text-right tabular-nums whitespace-nowrap; }
+
+@utility dialog-panel { @apply bg-surface rounded-2xl shadow-(--shadow-pop) w-[min(560px,calc(100vw-24px))] max-h-[90vh] overflow-auto; }
+@utility tip-bubble { @apply rounded-lg bg-ink px-2.5 py-1.5 text-xs font-medium text-surface shadow-(--shadow-pop) max-w-64 pointer-events-none; }
+@utility kbd { @apply rounded-md border border-line bg-bg px-1.5 py-0.5 text-[11px] font-semibold text-muted; }
+
+@layer components {
+  .chip.on { @apply bg-primary text-surface border-primary hover:text-surface; }
+  .btn-icon.danger { @apply hover:bg-danger-soft hover:text-danger; }
+  textarea.input { @apply resize-y; }
+
+  /* Tableaux modernes */
+  table.data { @apply w-full border-separate border-spacing-0 text-sm; }
+  table.data th {
+    @apply sticky top-0 bg-bg px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-muted
+      border-b border-line;
+  }
+  table.data td { @apply px-4 py-3.5 border-b border-line/70; }
+  table.data tbody tr { @apply transition-colors; }
+  table.data tbody tr:hover { @apply bg-primary-soft/50; }
+  table.data tbody tr:last-child td { @apply border-b-0; }
+}
+
+.cdk-overlay-dark-backdrop { background: color-mix(in srgb, var(--color-ink) 45%, transparent); backdrop-filter: blur(2px); }
 
 @media print {
-  body { background: #fff; }
+  body { background: var(--doc-paper); }
   .no-print { display: none !important; }
   @page { size: A4; margin: 14mm; }
 }

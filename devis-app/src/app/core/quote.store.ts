@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-import { Company, DEFAULT_COMPANY, Line, Quote, Section, newId, sampleQuote, today } from './models';
+import { Company, DEFAULT_COMPANY, Line, Quote, Section, newId, today } from './models';
+import { TemplateId, buildQuote } from './templates';
 
 const KEY_QUOTES = 'devis.quotes.v1';
 const KEY_COMPANY = 'devis.company.v1';
@@ -23,7 +24,9 @@ function write(key: string, value: unknown) {
 
 @Injectable({ providedIn: 'root' })
 export class QuoteStore {
-  readonly quotes = signal<Quote[]>(read<Quote[]>(KEY_QUOTES, []));
+  readonly quotes = signal<Quote[]>(
+    read<Quote[]>(KEY_QUOTES, []).map((q) => ({ ...q, status: q.status ?? 'draft' })),
+  );
   readonly company = signal<Company>({ ...DEFAULT_COMPANY, ...read<Partial<Company>>(KEY_COMPANY, {}) });
 
   get(id: string): Quote | undefined {
@@ -39,17 +42,21 @@ export class QuoteStore {
     write(KEY_QUOTES, next);
   }
 
-  create(): Quote {
-    const q = sampleQuote();
-    q.number = this.nextNumber();
+  create(templateId: TemplateId = 'cabine', extra: { client?: string; project?: string } = {}): Quote {
+    const q = buildQuote(templateId, { ...extra, number: this.nextNumber() });
     this.save(q);
     return q;
+  }
+
+  /** Remet un devis supprimé (action « Annuler »). */
+  restore(q: Quote) {
+    this.save(q);
   }
 
   duplicate(id: string): Quote | undefined {
     const src = this.get(id);
     if (!src) return;
-    const copy: Quote = { ...structuredClone(src), id: newId(), number: this.nextNumber(), date: today() };
+    const copy: Quote = { ...structuredClone(src), id: newId(), status: 'draft', number: this.nextNumber(), date: today() };
     this.save(copy);
     return copy;
   }

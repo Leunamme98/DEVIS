@@ -1,0 +1,66 @@
+<article class="sheet">
+  <header class="doc-head">
+    @if (company().logo) {
+      <img class="logo" [src]="company().logo" alt="Logo" />
+    }
+    @if (company().name) {
+      <div class="company">{{ company().name }}</div>
+    }
+    <p class="tagline">{{ company().tagline }}</p>
+    <p class="contacts">Contacts : {{ company().contacts }}</p>
+  </header>
+
+  <p class="right">{{ company().city }}, le {{ fmtDate(quote().date) }}</p>
+  @if (quote().number) {
+    <p class="right">Devis n° {{ quote().number }}</p>
+  }
+  <p><strong>Client :</strong> {{ quote().client }}</p>
+  <p><strong>Projet :</strong> {{ quote().project }}</p>
+
+  <h3 class="doc-title">{{ quote().title }}</h3>
+
+  <table>
+    <thead>
+      <tr><th>ART</th><th>DESIGNATION DES OUVRAGES</th><th>UNITE</th><th>Q.TE</th><th>P. U</th><th>P. T</th></tr>
+    </thead>
+    <tbody>
+      @for (s of quote().sections; track $index) {
+        @if (s.heading) {
+          <tr class="group"><td></td><td colspan="5">{{ s.heading }}</td></tr>
+        }
+        @if (s.title) {
+          <tr class="section"><td></td><td colspan="5">{{ s.title }}</td></tr>
+        }
+        @for (l of s.lines; track $index) {
+          <tr>
+            <td></td>
+            <td>{{ l.designation }} {{ l.dimensions }}</td>
+            <td class="c">{{ l.unit }}</td>
+            <td class="c">{{ l.qty }}</td>
+            <td class="r">{{ l.pu | fcfa }}</td>
+            <td class="r">{{ lineTotal(l) | fcfa }}</td>
+          </tr>
+        }
+        <tr class="total"><td></td><td colspan="4">{{ s.totalLabel }}</td><td class="r">{{ sectionTotal(s) | fcfa }}</td></tr>
+      }
+      @if (quote().tvaEnabled) {
+        <tr class="total"><td></td><td colspan="4">TOTAL HT</td><td class="r">{{ subTotal(quote()) | fcfa }}</td></tr>
+        <tr class="total"><td></td><td colspan="4">TVA {{ quote().tvaRate }} %</td><td class="r">{{ tvaAmount(quote()) | fcfa }}</td></tr>
+      }
+      <tr class="grand">
+        <td></td>
+        <td colspan="4">{{ quote().grandTotalLabel }}{{ quote().tvaEnabled ? ' TTC' : '' }}</td>
+        <td class="r">{{ grandTotal(quote()) | fcfa }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  @if (quote().notes) {
+    <p class="notes">{{ quote().notes }}</p>
+  }
+
+  <footer class="doc-foot">
+    <div>{{ company().email }}</div>
+    <div>Contacts : {{ company().contacts }}</div>
+  </footer>
+</article>

@@ -1,166 +1,190 @@
-<div class="layout" [class.show-edit]="view === 'edit'" [class.show-preview]="view === 'preview'">
-  <!-- ===== ÉDITEUR (masqué à l'impression) ===== -->
-  <aside class="editor no-print" (input)="save()" (change)="save()">
-    <div class="bar">
-      <a routerLink="/" class="btn">← Mes devis</a>
-      <button class="btn primary" (click)="print()">Imprimer / PDF</button>
-    </div>
-    <div class="tabs">
-      <button class="btn" [class.on]="view === 'edit'" (click)="view = 'edit'">Modifier</button>
-      <button class="btn" [class.on]="view === 'preview'" (click)="view = 'preview'">Aperçu</button>
+<!-- ===== Barre supérieure ===== -->
+<header class="no-print sticky top-0 z-40 border-b border-line bg-surface/95 backdrop-blur">
+  <div class="mx-auto flex h-16 max-w-[1500px] items-center gap-2 px-3 md:gap-3 md:px-5">
+    <a routerLink="/devis" class="btn-icon" tip="Retour à mes devis" tipPos="below"><app-icon name="arrow-left" /></a>
+    <div class="min-w-0 flex-1 leading-tight">
+      <p class="truncate text-sm font-bold md:text-base">Devis {{ quote.number || 'sans numéro' }}</p>
+      <p class="flex items-center gap-1 text-xs text-muted">
+        <app-icon name="check" [size]="12" class="text-success" />Enregistré à {{ savedLabel }}
+      </p>
     </div>
 
-    <details class="card">
-      <summary>Mon entreprise (en-tête)</summary>
-      <div class="logo-row">
-        @if (company.logo) {
-          <img [src]="company.logo" alt="Logo" />
-          <button class="btn" (click)="removeLogo()">Retirer le logo</button>
+    <label class="hidden items-center gap-2 sm:flex">
+      <span [class]="meta(quote.status).badge">{{ meta(quote.status).label }}</span>
+      <select class="input !w-auto !py-1.5" [(ngModel)]="quote.status" (change)="save()" aria-label="Statut du devis">
+        @for (s of statuses; track s.value) {
+          <option [value]="s.value">{{ s.label }}</option>
         }
-        <label class="btn">
-          {{ company.logo ? 'Changer le logo' : 'Ajouter un logo' }}
-          <input type="file" accept="image/*" hidden (change)="onLogo($event)" />
-        </label>
-      </div>
-      <label>Nom (texte, optionnel) <input [(ngModel)]="company.name" (input)="saveCompany()" /></label>
-      <label>Activités <textarea rows="3" [(ngModel)]="company.tagline" (input)="saveCompany()"></textarea></label>
-      <label>Contacts <input [(ngModel)]="company.contacts" (input)="saveCompany()" /></label>
-      <label>E-mail <input [(ngModel)]="company.email" (input)="saveCompany()" /></label>
-      <label>Ville <input [(ngModel)]="company.city" (input)="saveCompany()" /></label>
-    </details>
+      </select>
+    </label>
 
-    <section class="card">
-      <h2>Informations</h2>
-      <div class="grid2">
-        <label>N° devis <input [(ngModel)]="quote.number" /></label>
-        <label>Date <input type="date" [(ngModel)]="quote.date" /></label>
-        <label>Client <input [(ngModel)]="quote.client" /></label>
-        <label>Projet <input [(ngModel)]="quote.project" /></label>
+    <button class="btn-secondary hidden md:inline-flex" (click)="print()" tip="Imprimer ou enregistrer en PDF" tipPos="below">
+      <app-icon name="print" [size]="16" />PDF
+    </button>
+    <button class="btn-primary" (click)="share()"><app-icon name="share" [size]="16" /><span class="hidden sm:inline">Partager</span></button>
+  </div>
+
+  <!-- Onglets téléphone / tablette -->
+  <div class="mx-auto grid max-w-md grid-cols-2 gap-1 px-3 pb-2 lg:hidden">
+    <button class="chip !justify-center" [class.on]="view === 'edit'" (click)="view = 'edit'"><app-icon name="edit" [size]="15" />Modifier</button>
+    <button class="chip !justify-center" [class.on]="view === 'preview'" (click)="view = 'preview'"><app-icon name="file" [size]="15" />Aperçu</button>
+  </div>
+</header>
+
+<div class="mx-auto grid max-w-[1500px] gap-5 px-3 pb-28 pt-4 md:px-5 lg:grid-cols-[minmax(420px,560px)_1fr] lg:pb-8 print:block print:p-0">
+  <!-- ===== ÉDITEUR ===== -->
+  <div [class]="(view === 'edit' ? 'grid' : 'hidden') + ' no-print content-start gap-4 lg:grid'" (input)="save()" (change)="save()">
+    <!-- Statut (mobile) -->
+    <label class="card flex items-center justify-between gap-3 p-3 sm:hidden">
+      <span class="text-sm font-semibold">Statut</span>
+      <span class="flex items-center gap-2">
+        <span [class]="meta(quote.status).badge">{{ meta(quote.status).label }}</span>
+        <select class="input !w-auto" [(ngModel)]="quote.status" aria-label="Statut du devis">
+          @for (s of statuses; track s.value) {
+            <option [value]="s.value">{{ s.label }}</option>
+          }
+        </select>
+      </span>
+    </label>
+
+    <section class="card grid gap-3 p-4">
+      <h2 class="text-sm font-bold">Informations</h2>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <label class="field">N° de devis <input class="input" [(ngModel)]="quote.number" /></label>
+        <label class="field">Date <input class="input" type="date" [(ngModel)]="quote.date" /></label>
+        <label class="field">Client <input class="input" [(ngModel)]="quote.client" placeholder="Nom du client" /></label>
+        <label class="field">Projet <input class="input" [(ngModel)]="quote.project" placeholder="Lieu ou nom du chantier" /></label>
       </div>
-      <label>Titre du devis <input [(ngModel)]="quote.title" /></label>
+      <label class="field">Titre du devis <input class="input" [(ngModel)]="quote.title" /></label>
     </section>
 
     @for (s of quote.sections; track $index; let si = $index) {
-      <section class="card">
-        <div class="sec-head">
-          <h2>Section {{ si + 1 }}</h2>
-          <span>
-            <button class="mini" (click)="moveSection(si, -1)" title="Monter">↑</button>
-            <button class="mini" (click)="moveSection(si, 1)" title="Descendre">↓</button>
-            <button class="mini danger" (click)="removeSection(si)" title="Supprimer">✕</button>
+      <section class="card overflow-hidden">
+        <div class="flex items-center justify-between gap-2 border-b border-line bg-bg px-4 py-2.5">
+          <h2 class="flex items-center gap-2 text-sm font-bold">
+            <span class="grid size-6 place-items-center rounded-md bg-primary text-xs text-surface">{{ si + 1 }}</span>
+            {{ s.title || 'Section sans titre' }}
+          </h2>
+          <span class="flex gap-0.5">
+            <button class="btn-icon" (click)="moveSection(si, -1)" [disabled]="si === 0" tip="Monter la section"><app-icon name="arrow-up" [size]="16" /></button>
+            <button class="btn-icon" (click)="moveSection(si, 1)" [disabled]="si === quote.sections.length - 1" tip="Descendre la section"><app-icon name="arrow-down" [size]="16" /></button>
+            <button class="btn-icon danger" (click)="removeSection(si)" tip="Supprimer la section"><app-icon name="trash" [size]="16" /></button>
           </span>
         </div>
-        <div class="grid2">
-          <label>Intitulé du groupe (optionnel) <input [(ngModel)]="s.heading" placeholder="Cabine de douche" /></label>
-          <label>Titre de la section <input [(ngModel)]="s.title" placeholder="Vitre 10mm claire trempée" /></label>
-        </div>
-        <label>Libellé du sous-total (libre) <input [(ngModel)]="s.totalLabel" placeholder="TOTAL VITRE" /></label>
 
-        <div class="lines">
-          <div class="line head">
-            <span>Désignation</span><span>Dimensions (cm)</span><span>Unité</span><span>Qté</span><span>P.U</span><span></span>
+        <div class="grid gap-3 p-4">
+          <div class="grid gap-3 sm:grid-cols-2">
+            <label class="field">Groupe (optionnel) <input class="input" [(ngModel)]="s.heading" placeholder="Cabine de douche" /></label>
+            <label class="field">Titre de la section <input class="input" [(ngModel)]="s.title" placeholder="Vitre 10mm claire trempée" /></label>
           </div>
-          @for (l of s.lines; track $index; let li = $index) {
-            <div class="line">
-              <input [(ngModel)]="l.designation" placeholder="Désignation" />
-              <span class="dim">
-                <input [(ngModel)]="l.dimensions" placeholder="106X210" />
-                @if (l.dimensions) {
-                  <button class="mini" (click)="priceFromArea(l)" title="P.U = surface × prix du m²">m²→P.U</button>
-                }
-              </span>
-              <input [(ngModel)]="l.unit" placeholder="Unité" />
-              <input type="number" min="0" inputmode="decimal" [(ngModel)]="l.qty" placeholder="Qté" />
-              <input type="number" min="0" inputmode="numeric" [(ngModel)]="l.pu" placeholder="P.U" />
-              <button class="mini danger" (click)="removeLine(s, li)" title="Supprimer la ligne">✕</button>
-            </div>
-          }
+          <label class="field">
+            <span tip="Ce texte apparaît sur la ligne de sous-total du devis. Écrivez ce que vous voulez.">Libellé du sous-total ⓘ</span>
+            <input class="input" [(ngModel)]="s.totalLabel" placeholder="TOTAL VITRE" />
+          </label>
+
+          <!-- Lignes : disposition en 3 rangées, lisible dans toute la largeur -->
+          <div cdkDropList (cdkDropListDropped)="dropLine(s, $event)" class="grid gap-2.5">
+            @for (l of s.lines; track $index; let li = $index) {
+              <div cdkDrag class="line grid grid-cols-[22px_repeat(4,minmax(0,1fr))_32px] items-end gap-x-2 gap-y-2 rounded-xl border border-line bg-surface p-3">
+                <span cdkDragHandle class="mb-2 cursor-grab self-center text-muted/60 hover:text-primary" tip="Glisser pour réordonner"><app-icon name="grip" [size]="16" /></span>
+                <label class="field col-span-4">Désignation
+                  <input class="input" [(ngModel)]="l.designation" placeholder="Ex. Kit coulissant" />
+                </label>
+                <button class="btn-icon danger mb-0.5" (click)="removeLine(s, li)" tip="Supprimer la ligne"><app-icon name="trash" [size]="16" /></button>
+
+                <span></span>
+                <label class="field col-span-2">
+                  <span tip="Largeur × hauteur en cm, ex. 106X210">Dimensions (cm) ⓘ</span>
+                  <span class="flex gap-1">
+                    <input class="input" [(ngModel)]="l.dimensions" placeholder="106X210" />
+                    @if (l.dimensions) {
+                      <button type="button" class="btn-secondary btn-sm !px-2" (click)="priceFromArea(l)" tip="Calculer le P.U : surface × prix du m²">m²→P.U</button>
+                    }
+                  </span>
+                </label>
+                <label class="field">Unité <input class="input" [(ngModel)]="l.unit" placeholder="U" /></label>
+                <label class="field">Qté <input class="input" type="number" min="0" inputmode="decimal" [(ngModel)]="l.qty" /></label>
+                <span></span>
+
+                <span></span>
+                <label class="field col-span-2">Prix unitaire (FCFA) <input class="input" type="number" min="0" inputmode="numeric" [(ngModel)]="l.pu" /></label>
+                <span class="col-span-2 pb-2 text-right text-xs text-muted">Total ligne<b class="ml-2 text-base text-ink tabular-nums">{{ lineTotal(l) | fcfa }}</b></span>
+                <span></span>
+              </div>
+            }
+          </div>
+
+          <div class="flex items-center justify-between">
+            <button class="btn-secondary btn-sm" (click)="addLine(s)"><app-icon name="plus" [size]="14" />Ajouter une ligne</button>
+            <p class="text-sm text-muted">{{ s.totalLabel }} : <b class="text-ink tabular-nums">{{ sectionTotal(s) | fcfa }}</b> FCFA</p>
+          </div>
         </div>
-        <button class="btn" (click)="addLine(s)">+ Ajouter une ligne</button>
-        <p class="sub">{{ s.totalLabel }} : <strong>{{ sectionTotal(s) | fcfa }}</strong> FCFA</p>
       </section>
     }
-    <button class="btn" (click)="addSection()">+ Ajouter une section</button>
 
-    <section class="card">
-      <h2>Totaux</h2>
-      <label>Libellé du total général <input [(ngModel)]="quote.grandTotalLabel" /></label>
-      <div class="grid2">
-        <label class="check"><input type="checkbox" [(ngModel)]="quote.tvaEnabled" /> Appliquer la TVA</label>
-        <label>Taux TVA (%) <input type="number" min="0" [(ngModel)]="quote.tvaRate" /></label>
-        <label>Prix du m² de vitre (aide au calcul) <input type="number" min="0" [(ngModel)]="quote.pricePerM2" /></label>
+    <button class="btn-secondary !border-dashed !py-3" (click)="addSection()"><app-icon name="plus" [size]="16" />Ajouter une section</button>
+
+    <section class="card grid gap-3 p-4">
+      <h2 class="text-sm font-bold">Totaux et conditions</h2>
+      <label class="field">Libellé du total général <input class="input" [(ngModel)]="quote.grandTotalLabel" /></label>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-line p-3 text-sm font-medium">
+          <input type="checkbox" class="size-4 accent-primary" [(ngModel)]="quote.tvaEnabled" />
+          Appliquer la TVA
+        </label>
+        <label class="field">Taux de TVA (%) <input class="input" type="number" min="0" [(ngModel)]="quote.tvaRate" [disabled]="!quote.tvaEnabled" /></label>
+        <label class="field sm:col-span-2">
+          <span tip="Sert au bouton « m²→P.U » des lignes : prix = surface × ce montant.">Prix du m² de vitre (aide au calcul) ⓘ</span>
+          <input class="input" type="number" min="0" [(ngModel)]="quote.pricePerM2" />
+        </label>
       </div>
-      <label>Notes / conditions (paiement, validité, pose…) <textarea rows="4" [(ngModel)]="quote.notes"></textarea></label>
+      <label class="field">Notes / conditions (paiement, validité, pose…)
+        <textarea class="input" rows="3" [(ngModel)]="quote.notes" placeholder="Ex. Devis valable 30 jours. Acompte de 50 % à la commande."></textarea>
+      </label>
     </section>
-  </aside>
 
-  <!-- ===== APERÇU IMPRIMABLE ===== -->
-  <section class="preview">
-    <article class="sheet">
-      <header class="doc-head">
-        @if (company.logo) {
-          <img class="logo" [src]="company.logo" alt="Logo" />
-        }
-        @if (company.name) {
-          <div class="company">{{ company.name }}</div>
-        }
-        <p class="tagline">{{ company.tagline }}</p>
-        <p class="contacts">Contacts : {{ company.contacts }}</p>
-      </header>
-
-      <p class="right">{{ company.city }}, le {{ fmtDate(quote.date) }}</p>
-      @if (quote.number) {
-        <p class="right">Devis n° {{ quote.number }}</p>
-      }
-      <p><strong>Client :</strong> {{ quote.client }}</p>
-      <p><strong>Projet :</strong> {{ quote.project }}</p>
-
-      <h3 class="doc-title">{{ quote.title }}</h3>
-
-      <table>
-        <thead>
-          <tr><th>ART</th><th>DESIGNATION DES OUVRAGES</th><th>UNITE</th><th>Q.TE</th><th>P. U</th><th>P. T</th></tr>
-        </thead>
-        <tbody>
-          @for (s of quote.sections; track $index) {
-            @if (s.heading) {
-              <tr class="group"><td></td><td colspan="5">{{ s.heading }}</td></tr>
-            }
-            @if (s.title) {
-              <tr class="section"><td></td><td colspan="5">{{ s.title }}</td></tr>
-            }
-            @for (l of s.lines; track $index) {
-              <tr>
-                <td></td>
-                <td>{{ l.designation }} {{ l.dimensions }}</td>
-                <td class="c">{{ l.unit }}</td>
-                <td class="c">{{ l.qty }}</td>
-                <td class="r">{{ l.pu | fcfa }}</td>
-                <td class="r">{{ lineTotal(l) | fcfa }}</td>
-              </tr>
-            }
-            <tr class="total"><td></td><td colspan="4">{{ s.totalLabel }}</td><td class="r">{{ sectionTotal(s) | fcfa }}</td></tr>
+    <details class="card group p-4">
+      <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-bold">
+        Mon entreprise (en-tête du devis)
+        <app-icon name="chevron" [size]="16" class="transition group-open:rotate-180" />
+      </summary>
+      <div class="mt-3 grid gap-3">
+        <div class="flex flex-wrap items-center gap-3">
+          @if (company.logo) {
+            <img [src]="company.logo" alt="Logo" class="max-h-12 max-w-40 rounded-md border border-line" />
+            <button class="btn-secondary btn-sm" (click)="removeLogo()">Retirer le logo</button>
           }
-          @if (quote.tvaEnabled) {
-            <tr class="total"><td></td><td colspan="4">TOTAL HT</td><td class="r">{{ subTotal(quote) | fcfa }}</td></tr>
-            <tr class="total"><td></td><td colspan="4">TVA {{ quote.tvaRate }} %</td><td class="r">{{ tvaAmount(quote) | fcfa }}</td></tr>
-          }
-          <tr class="grand">
-            <td></td>
-            <td colspan="4">{{ quote.grandTotalLabel }}{{ quote.tvaEnabled ? ' TTC' : '' }}</td>
-            <td class="r">{{ grandTotal(quote) | fcfa }}</td>
-          </tr>
-        </tbody>
-      </table>
+          <label class="btn-secondary btn-sm">
+            <app-icon name="image-plus" [size]="14" />{{ company.logo ? 'Changer le logo' : 'Ajouter un logo' }}
+            <input type="file" accept="image/*" hidden (change)="onLogo($event)" />
+          </label>
+        </div>
+        <label class="field">Nom (texte, optionnel) <input class="input" [(ngModel)]="company.name" (input)="saveCompany()" /></label>
+        <label class="field">Activités <textarea class="input" rows="3" [(ngModel)]="company.tagline" (input)="saveCompany()"></textarea></label>
+        <label class="field">Contacts <input class="input" [(ngModel)]="company.contacts" (input)="saveCompany()" /></label>
+        <label class="field">E-mail <input class="input" [(ngModel)]="company.email" (input)="saveCompany()" /></label>
+        <label class="field">Ville <input class="input" [(ngModel)]="company.city" (input)="saveCompany()" /></label>
+      </div>
+    </details>
+  </div>
 
-      @if (quote.notes) {
-        <p class="notes">{{ quote.notes }}</p>
-      }
-
-      <footer class="doc-foot">
-        <div>{{ company.email }}</div>
-        <div>Contacts : {{ company.contacts }}</div>
-      </footer>
-    </article>
+  <!-- ===== APERÇU ===== -->
+  <section [class]="(view === 'preview' ? 'block' : 'hidden') + ' min-w-0 lg:block print:!block'" aria-label="Aperçu du devis">
+    <div class="rounded-2xl bg-line/60 p-2 sm:p-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-auto print:bg-transparent print:p-0">
+      <app-quote-sheet class="shadow-(--shadow-card) print:shadow-none" [quote]="quote" [company]="company" />
+    </div>
   </section>
+</div>
+
+<!-- Barre de total (téléphone) -->
+<div class="no-print fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface px-4 pb-[max(10px,env(safe-area-inset-bottom))] pt-2.5 lg:hidden">
+  <div class="mx-auto flex max-w-md items-center justify-between gap-3">
+    <div class="leading-tight">
+      <p class="text-[11px] font-medium text-muted">{{ quote.grandTotalLabel }}{{ quote.tvaEnabled ? ' TTC' : '' }}</p>
+      <p class="text-lg font-extrabold tabular-nums text-primary">{{ grandTotal(quote) | fcfa }} <span class="text-xs font-semibold text-muted">FCFA</span></p>
+    </div>
+    <button class="btn-primary" (click)="view = view === 'edit' ? 'preview' : 'edit'">
+      @if (view === 'edit') { <app-icon name="file" [size]="16" />Voir l'aperçu } @else { <app-icon name="edit" [size]="16" />Modifier }
+    </button>
+  </div>
 </div>

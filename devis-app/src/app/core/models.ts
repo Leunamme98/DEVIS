@@ -22,8 +22,20 @@ export interface Company {
   city: string;
 }
 
+export type QuoteStatus = 'draft' | 'sent' | 'accepted' | 'rejected';
+
+export const STATUSES: { value: QuoteStatus; label: string; badge: string }[] = [
+  { value: 'draft', label: 'Brouillon', badge: 'badge-draft' },
+  { value: 'sent', label: 'Envoyé', badge: 'badge-sent' },
+  { value: 'accepted', label: 'Accepté', badge: 'badge-accepted' },
+  { value: 'rejected', label: 'Refusé', badge: 'badge-rejected' },
+];
+
+export const statusMeta = (s: QuoteStatus | undefined) => STATUSES.find((x) => x.value === s) ?? STATUSES[0];
+
 export interface Quote {
   id: string;
+  status: QuoteStatus;
   number: string;
   date: string; // yyyy-mm-dd
   client: string;
@@ -63,45 +75,4 @@ export function newId(): string {
 
 export function today(): string {
   return new Date().toISOString().slice(0, 10);
-}
-
-export function sampleQuote(): Quote {
-  return {
-    id: newId(),
-    number: '',
-    date: today(),
-    client: '',
-    project: 'Bingerville',
-    title: 'DEVIS DE : MENUISERIE ALUMINIUM',
-    sections: [
-      {
-        heading: 'Cabine de douche',
-        title: 'Vitre 10mm claire trempée',
-        totalLabel: 'TOTAL VITRE',
-        lines: [
-          { designation: '', dimensions: '106X210', unit: 'U', qty: 1, pu: 77200 },
-          { designation: '', dimensions: '123X210', unit: 'U', qty: 1, pu: 88400 },
-        ],
-      },
-      {
-        heading: '',
-        title: 'Accessoires',
-        totalLabel: 'TOTAL ACCESSOIRES',
-        lines: [
-          { designation: 'Kit coulissant', dimensions: '', unit: 'U', qty: 1, pu: 40000 },
-          { designation: 'Rail', dimensions: '', unit: 'U', qty: 1, pu: 10000 },
-          { designation: 'Pinces', dimensions: '', unit: 'U', qty: 6, pu: 3000 },
-          { designation: 'Baguette F', dimensions: '', unit: 'U', qty: 1, pu: 3000 },
-          { designation: 'Baguette O', dimensions: '', unit: 'U', qty: 1, pu: 3000 },
-          { designation: 'Silicone', dimensions: '', unit: 'U', qty: 2, pu: 1500 },
-        ],
-      },
-    ],
-    grandTotalLabel: 'TOTAL GENERAL',
-    tvaEnabled: false,
-    tvaRate: 18,
-    pricePerM2: 34500,
-    notes: '',
-    updatedAt: Date.now(),
-  };
 }

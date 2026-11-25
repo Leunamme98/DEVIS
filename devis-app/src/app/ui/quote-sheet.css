@@ -1,0 +1,30 @@
+:host { display: block; }
+.sheet { background: var(--doc-paper); color: var(--doc-ink); padding: 28px 32px; max-width: 800px; margin: 0 auto; font-size: 13px; line-height: 1.4; font-family: var(--font-sans); }
+.company { font-size: 1.5rem; font-weight: 800; text-align: center; }
+.tagline { text-align: center; font-weight: 700; margin: 4px 0; }
+.contacts { text-align: center; margin: 0 0 16px; }
+.right { text-align: right; margin: 2px 0; }
+p { margin: 6px 0; }
+.doc-title { text-align: center; margin: 18px 0 10px; font-size: 1.05rem; text-decoration: underline; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border: 1px solid var(--doc-ink); padding: 4px 6px; }
+th { background: var(--doc-head); font-size: .8rem; }
+td.c { text-align: center; }
+td.r { text-align: right; white-space: nowrap; }
+tr.group td { font-weight: 800; text-align: center; }
+tr.section td { font-weight: 700; text-decoration: underline; }
+tr.total td { font-weight: 700; background: var(--doc-sub); }
+tr.grand td { font-weight: 800; color: var(--doc-grand); font-size: 1.15em; }
+.notes { margin-top: 14px; white-space: pre-line; }
+.doc-foot { margin-top: 30px; text-align: center; font-size: .85rem; font-weight: 700; padding: 6px 0 8px; border-bottom: 4px solid var(--doc-bar); }
+.logo { display: block; width: 100%; height: auto; }
+
+@media (max-width: 700px) {
+  .sheet { padding: 10px; font-size: 10.5px; }
+  th, td { padding: 3px 4px; }
+  th { font-size: .62rem; }
+  .doc-title { font-size: .9rem; }
+}
+@media print {
+  .sheet { max-width: none; padding: 0; font-size: 12px; }
+}
