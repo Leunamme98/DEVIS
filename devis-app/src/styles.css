@@ -51,7 +51,34 @@
   --doc-bar: #4a7ac2;
 }
 
-html { -webkit-tap-highlight-color: transparent; }
+html {
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem; /* les ancres ne passent pas sous l'en-tête fixe */
+  overflow-y: scroll;
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* ----- Barre de défilement aux couleurs de la charte ----- */
+@supports selector(::-webkit-scrollbar) {
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-primary) 28%, transparent);
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: 999px;
+    transition: background-color .2s;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--color-primary) 60%, transparent); background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:active { background: var(--color-primary); background-clip: content-box; }
+  ::-webkit-scrollbar-corner { background: transparent; }
+}
+@supports not selector(::-webkit-scrollbar) {
+  * { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--color-primary) 40%, transparent) transparent; }
+}
+/* Zones défilantes internes : pas de « rebond » qui entraîne la page */
+.dialog-panel, .table-wrap { overscroll-behavior: contain; }
 body {
   margin: 0;
   background: var(--color-bg);
