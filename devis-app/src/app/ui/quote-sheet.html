@@ -13,25 +13,15 @@
       </div>
     </div>
     <div class="doc-id">
-      <div class="doc-word">DEVIS</div>
-      @if (quote().number) {
-        <div class="doc-number">N° {{ quote().number }}</div>
-      }
+      <div class="doc-word">Devis @if (quote().number) { <span>n° {{ quote().number }}</span> }</div>
       <div class="doc-date">{{ company().city }}, le {{ fmtDate(quote().date) }}</div>
     </div>
   </header>
-  <div class="accent-bar"></div>
 
   <!-- Client / projet -->
   <section class="parties">
-    <div class="party">
-      <span class="party-label">Client</span>
-      <span class="party-value">{{ quote().client || '—' }}</span>
-    </div>
-    <div class="party">
-      <span class="party-label">Projet</span>
-      <span class="party-value">{{ quote().project || '—' }}</span>
-    </div>
+    <p><span>Client :</span> {{ quote().client }}</p>
+    <p><span>Projet :</span> {{ quote().project }}</p>
   </section>
 
   <h3 class="doc-title">{{ title() }}</h3>
@@ -44,12 +34,12 @@
       </colgroup>
       <thead>
         <tr>
-          <th class="c">N°</th>
+          <th class="c">ART</th>
           <th>Désignation des ouvrages</th>
           <th class="c">Unité</th>
-          <th class="c">Qté</th>
-          <th class="r">P.U (FCFA)</th>
-          <th class="r">Total (FCFA)</th>
+          <th class="c">Q.TE</th>
+          <th class="r">P.U</th>
+          <th class="r">P.T</th>
         </tr>
       </thead>
       <tbody>
@@ -64,16 +54,16 @@
             @case ('line') {
               <tr class="line">
                 <td class="c idx">{{ r.n }}</td>
-                <td class="desc">{{ r.label }}@if (r.dims) { <span class="dims">{{ r.dims }}</span> }</td>
+                <td class="desc">{{ r.label }}{{ r.label && r.dims ? ' ' : '' }}{{ r.dims }}</td>
                 <td class="c">{{ r.unit }}</td>
                 <td class="c">{{ r.qty }}</td>
                 <td class="r">{{ r.pu | fcfa }}</td>
-                <td class="r strong">{{ r.total | fcfa }}</td>
+                <td class="r">{{ r.total | fcfa }}</td>
               </tr>
             }
             @case ('subtotal') {
               <tr class="subtotal">
-                <td colspan="5" class="r">{{ r.label }}</td>
+                <td colspan="5">{{ r.label }}</td>
                 <td class="r">{{ r.total | fcfa }}</td>
               </tr>
             }
@@ -85,38 +75,22 @@
 
   <!-- Totaux -->
   <section class="totals">
-    <div class="words">
-      <span class="words-label">Arrêté le présent devis à la somme de</span>
-      <span class="words-value">{{ inWords() }}</span>
-    </div>
-    <div class="sums">
-      @if (quote().tvaEnabled) {
-        <div class="sum-row"><span>Total HT</span><b>{{ subTotal(quote()) | fcfa }}</b></div>
-        <div class="sum-row"><span>TVA {{ quote().tvaRate }} %</span><b>{{ tvaAmount(quote()) | fcfa }}</b></div>
-      }
-      <div class="grand">
-        <span>{{ quote().grandTotalLabel }}{{ quote().tvaEnabled ? ' TTC' : '' }}</span>
-        <b>{{ grandTotal(quote()) | fcfa }} <small>FCFA</small></b>
-      </div>
+    @if (quote().tvaEnabled) {
+      <div class="sum-row"><span>Total HT</span><span>{{ subTotal(quote()) | fcfa }}</span></div>
+      <div class="sum-row"><span>TVA {{ quote().tvaRate }} %</span><span>{{ tvaAmount(quote()) | fcfa }}</span></div>
+    }
+    <div class="grand">
+      <span>{{ quote().grandTotalLabel }}{{ quote().tvaEnabled ? ' TTC' : '' }}</span>
+      <span class="amount">{{ grandTotal(quote()) | fcfa }} FCFA</span>
     </div>
   </section>
 
   @if (quote().notes) {
-    <section class="notes">
-      <span class="notes-label">Conditions</span>
-      <p>{{ quote().notes }}</p>
-    </section>
+    <p class="notes">{{ quote().notes }}</p>
   }
 
-  <!-- Signatures -->
-  <section class="signatures">
-    <div class="sign"><span>Bon pour accord</span><small>Le client (date et signature)</small></div>
-    <div class="sign"><span>{{ company().name || 'L\'entreprise' }}</span><small>Cachet et signature</small></div>
-  </section>
-
   <footer class="foot">
-    <span>{{ company().email }}</span>
-    <span class="dot">•</span>
-    <span>{{ company().contacts }}</span>
+    <div>{{ company().email }}</div>
+    <div>Contacts : {{ company().contacts }}</div>
   </footer>
 </article>

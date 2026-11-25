@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { FcfaPipe } from '../core/fcfa.pipe';
 import { Company, Quote } from '../core/models';
-import { numberToFrench } from '../core/number-words';
 import { grandTotal, lineTotal, sectionTotal, subTotal, tvaAmount } from '../core/quote.store';
 
 type Row =
@@ -55,11 +54,6 @@ export class QuoteSheet {
   /** « DEVIS DE : MENUISERIE… » → « MENUISERIE… » (le mot DEVIS figure déjà dans l'en-tête). */
   protected title(): string {
     return this.quote().title.replace(/^\s*devis\s*(de|d')?\s*:?\s*/i, '').trim() || this.quote().title;
-  }
-
-  protected inWords(): string {
-    const w = numberToFrench(grandTotal(this.quote()));
-    return w.charAt(0).toUpperCase() + w.slice(1) + ' francs CFA';
   }
 
   protected fmtDate(iso: string): string {
