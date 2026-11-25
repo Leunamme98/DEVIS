@@ -1,4 +1,7 @@
 <article class="sheet">
+<table class="page">
+<thead><tr><td><div class="sp"></div></td></tr></thead>
+<tbody><tr><td>
   <!-- En-tête -->
   <header class="head">
     <div class="brand">
@@ -28,7 +31,7 @@
 
   <!-- Tableau -->
   <div class="table-frame">
-    <table>
+    <table class="items">
       <colgroup>
         <col class="c-n" /><col /><col class="c-u" /><col class="c-q" /><col class="c-p" /><col class="c-t" />
       </colgroup>
@@ -88,9 +91,13 @@
   @if (quote().notes) {
     <p class="notes">{{ quote().notes }}</p>
   }
-
+</td></tr></tbody>
+<tfoot><tr><td>
   <footer class="foot">
     <div>{{ company().email }}</div>
     <div>Contacts : {{ company().contacts }}</div>
   </footer>
+<div class="sp sp-bottom"></div>
+</td></tr></tfoot>
+</table>
 </article>

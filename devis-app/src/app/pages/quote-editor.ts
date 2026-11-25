@@ -1,6 +1,7 @@
 import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FcfaPipe } from '../core/fcfa.pipe';
 import { Company, Line, Quote, STATUSES, Section, emptyLine, emptySection, statusMeta } from '../core/models';
@@ -22,6 +23,7 @@ export class QuoteEditor {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly toast = inject(ToastService);
   private readonly ui = inject(Ui);
+  private readonly titleService = inject(Title);
 
   protected quote: Quote;
   protected company: Company = { ...this.store.company() };
@@ -46,6 +48,14 @@ export class QuoteEditor {
       return;
     }
     this.quote = structuredClone(found);
+    this.updateTitle();
+  }
+
+  /** Le titre de l'onglet est proposé comme nom de fichier à l'enregistrement du PDF. */
+  private updateTitle() {
+    const part = (s: string) => s.trim().replace(/[\/:*?"<>|]+/g, ' ').replace(/\s+/g, '-');
+    const name = ['Devis', part(this.quote.number), part(this.quote.client)].filter(Boolean).join('-');
+    this.titleService.setTitle(name);
   }
 
   protected get savedLabel(): string {
@@ -55,6 +65,7 @@ export class QuoteEditor {
   save() {
     this.store.save(this.quote);
     this.savedAt = Date.now();
+    this.updateTitle();
   }
 
   saveCompany() {
